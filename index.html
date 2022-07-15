@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+
+	<style>
+		 p {
+			font-size: 1.5rem;
+		}
+		ul {
+			font-size: 1.2rem;
+			text-align: center;
+		}
+		.high {
+			font-size: 1.1rem;
+		}
+		img {
+			width: 30%;
+		}
+		.null {
+			width: 80%
+		}
+	</style>
+
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>Hypothyroidism</h2>
+					<p class="fragment">By: Krishnaveni Parvataneni, Shreya Singh, Tyler Westland, Ritvik Irigireddy
+					</p>
+
+				</section>
+				<section >
+					<h3>Problem Statement</h3>
+					<p class="fragment">Hypothyroidism is a disorder of the endocrine system that affects 0.3% of the population. If left untreated, hypothyroidism can cause obesity, infertility, and heart disease. 
+					</p>
+					<p class="fragment">Christian (a.k.a ‘the boss’) is privy to the fact that not everyone can afford to send upwards of 15 medical records to doctors to test for hypothyroidism.
+
+					</p>
+					<p class="fragment">Therefore, we have been tasked with creating a model that can predict hypothyroidism in an individual while relying on a low amount of features.
+
+					</p>
+					<p class="fragment">The boss has provided us tabular data from UC Irvine to help us train our model.
+
+					</p>
+					<!-- <img class="fragment" src="baby.jpg" alt=""> -->
+				</section>
+				<section>
+					<h3>Data Preprocessing</h3>
+					
+				</section>
+				<section>
+					<h4>Step 1, 2, 3
+					</h4>
+					<p class="fragment">Step 1: Replacement dictionary to replace “?” with column median
+					
+					</p>
+					<pre class="fragment"><code data-trim data-noescape>
+						'Age': {'?': pd.to_numeric(dataset.Age, errors='coerce').median()}
+						dataset.replace(replace_dict, inplace=True)
+				</code></pre>
+				<p class="fragment">Step 2: Drop TBG + TBG Measured (1 unique value)
+
+				</p>
+				<p class="fragment">Step 3: Int data type for All numeric columns 
+
+				</p>
+						
+
+				</section>
+
+				<section>
+					<h4>Step 4, 5, 6
+
+					</h4>
+					<p class="fragment">Step 4: Convert labels into binary classification
+					</p>
+					<ul class="fragment">
+						<li>
+							Strip patient identifier
+						</li>
+						<li>
+							Negative’ = 0 and 'compensated hypothyroid', 'primary hypothyroid', 'secondary hypothyroid' = 1
+
+
+
+						</li>
+					</ul>
+				<p class="fragment">
+					Step 5: Remove rows with patients who reported “?” as their sex
+
+				</p>
+				<pre class="fragment"><code data-trim data-noescape>
+					dataset.drop(dataset[dataset['Sex'] == "?"].index, inplace = True)
+				</code></pre>
+				<p class="fragment">Step 6: Check correlation between class and features
+
+				</p>
+				<pre class="fragment"><code data-trim data-noescape>
+					[ TSH = .441, FTI = -.293, TT4: -.269, T3: -.168]
+				</code></pre>	
+
+				</section>
+
+				<section>
+					<h1>AI Models + Accuracy Levels</h1>
+				</section>
+
+				<section>
+					<h3>
+						Zero Rule Algorithm
+					</h3>
+					<pre class="fragment"><code data-trim data-noescape>
+						def zero_rule_algorithm_classification(train,test):
+							train = np.asarray(train)
+							bincount = np.bincount(train)
+							prediction = np.argmax(bincount)
+							predicted = [prediction for i in range(len(test))]
+							return predicted					</code></pre>	
+					<p class="fragment">Baseline classification resulted in ~92%</p>
+					<p class="fragment">Model predicted “negative” for all records</p>
+			
+				</section>
+
+
+				<section>
+					<h3>
+						Logistic Regression
+
+					</h3>
+					<p class="fragment">Trained based on “Age” and “Sex”					</p>
+					<p class="high fragment">Area under curve = 0.53</p>
+					<p class="fragment">Trained based on “On Thyroxine”, “Thyroid Surgery”, “TSH”
+					</p>
+					<p class="high fragment">Area under curve = 0.95</p>
+			
+				</section>
+				<section>
+					<h3>
+						Random Forest
+
+					</h3>
+					<p class="fragment">Trained based on “TSH” and “FTI”
+					</p>
+					<p class="high fragment">Area under curve = 0.98
+					</p>
+					<p class="fragment">Trained based on “TSH”, “FTI”, and “On Thyroxine”
+
+					</p>
+					<p class="high fragment">Area under curve = 0.98
+					</p>
+					<p class="fragment">Trained based on “TSH”, “FTI”, “On Thyroxine”, and “TT4”
+
+					</p>
+					<p class="high fragment">Area under curve = 0.99
+
+					</p>
+				</section>
+
+
+				<section>
+					<h3>
+						AUC Curves
+					</h3>
+					<img src="AUC3.png" alt="">
+					
+					<img src="AUC2.png" alt="">
+
+					<img src="AUC.png" alt="">
+
+				</section>
+
+				<section>
+					<pre><code data-trim data-noescape>
+						model.feature_importance_
+					</code></pre>	
+
+					<img src="model.png" alt="">
+					
+				</section>
+				<section >
+					<h3>Conclusions</h3>
+					<p class="fragment">Our final model was a random forest classifier that used a patient’s TSH and FTI features to predict a binary output of either having or not having hypothyroidism.
+
+					</p>
+					<p class="fragment">Both TSH (Thyroid-Stimulating Hormone) and FTI (Free Thyroxine Index)  require a blood test, so the combined cost for these medical records per individual is around $200; therefore, the cost to detect hypothyroidism using our model is only $200.
+
+					</p>
+					<p class="fragment">The accuracy of our model could be improved using more features, but it would only be a 2% increase. The added cost of using more features would not be worth it.
+
+					</p>
+					<!-- <img class="fragment" src="baby.jpg" alt=""> -->
+				</section>
+				
+				<section>
+					<img class="null" src="thanks.png" alt="">
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
